@@ -34,10 +34,10 @@ class MBC_UserAPIRegistration
     $post = array(
       'email' => $payloadDetails['email'],
       'drupal_uid' => $payloadDetails['uid'],
-      'birthdate' => $payloadDetails['birthdate'],
-      'register_date' => $payloadDetails['activity_timestamp'],
+      'birthdate_timestamp' => $payloadDetails['birthdate'],
+      'drupal_register_timestamp' => $payloadDetails['activity_timestamp'],
     );
-    if (isset($payloadDetails['mobile'])) {
+    if (isset($payloadDetails['mobile']) && $payloadDetails['mobile'] != NULL) {
       $post['mobile'] = $payloadDetails['mobile'];
     }
 
