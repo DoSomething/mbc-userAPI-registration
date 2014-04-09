@@ -35,21 +35,10 @@ class MBC_UserAPIRegistration
       'email' => $payloadDetails['email'],
       'drupal_uid' => $payloadDetails['uid'],
       'birthdate' => $payloadDetails['birthdate'],
-      'mobile' => $payloadDetails['mobile'],
-      'register_date' => $payloadDetails['mobile'],
+      'register_date' => $payloadDetails['activity_timestamp'],
     );
-    
-    /*
-    a:8:{s:8:"activity";s:13:"user_register";s:5:"email";s:21:"mara.efimov@gmail.com";s:3:"uid";s:7:"1735678";s:9:"birthdate";s:9:"873331200";s:6:
-    "mobile";N;s:10:"merge_vars";a:1:{s:5:"FNAME";s:4:"Mara";}s:18:"activity_timestamp";i:1396388170;s:14:"application_id";s:1:"2";}
-    */
-    
-    // Campaign signup or reportback?
-    if ($payloadDetails['activity'] == 'campaign_reportback') {
-      $post['campaigns'][0]['reportback'] = date('m-d-Y', $payloadDetails['activity_timestamp']);
-    }
-    else {
-      $post['campaigns'][0]['signup'] = date('m-d-Y', $payloadDetails['activity_timestamp']);
+    if (isset($payloadDetails['mobile'])) {
+      $post['mobile'] = $payloadDetails['mobile'];
     }
 
     $userApiUrl = getenv('DS_USER_API_HOST') . ':' . getenv('DS_USER_API_PORT') . '/user';
@@ -96,11 +85,6 @@ $config = array(
   ),
   'routingKey' => getenv("MB_USER_API_REGISTRATION_ROUTING_KEY"),
 );
-
-$bla = FALSE;
-if ($bla) {
-  $bla = TRUE;
-}
 
 // Kick off
 $mb = new MessageBroker($credentials, $config);
