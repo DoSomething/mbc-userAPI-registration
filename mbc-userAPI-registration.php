@@ -55,7 +55,12 @@ class MBC_UserAPIRegistration
     curl_close($ch);
 
     // Remove entry from queue
-    MessageBroker::sendAck($payload);
+    // @todo: Skipping sendAck as consumeMessage issues a $channel->close(); which might explain the:
+    /*
+       PHP Fatal error:  Uncaught exception 'PhpAmqpLib\Exception\AMQPProtocolChannelException' with message
+       'PRECONDITION_FAILED - unknown delivery tag 1' in /opt/rabbit/mbc-userAPI-registration/vendor/videlalvaro/php-amqplib/PhpAmqpLib/Channel/AMQPChannel.php:115
+     */
+    // MessageBroker::sendAck($payload);
     
     echo '------- MBC_UserAPIRegistration $payload: ' . print_r($payload, TRUE) . ' -------', "\n";
     echo '------- MBC_UserAPIRegistration END #' . $payload->delivery_info['delivery_tag'] . ' - ' . date('D M j G:i:s:u T Y') . ' -------', "\n";
