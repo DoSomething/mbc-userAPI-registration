@@ -43,7 +43,7 @@ class MBC_UserAPIRegistration
       $post['mobile'] = $payloadDetails['mobile'];
     }
     
-    echo '------- MBC_UserAPIRegistration $post: ' . print_r($post) . ' -------', "\n";
+    echo '------- MBC_UserAPIRegistration $post: ' . print_r($post, TRUE) . ' -------', "\n";
 
     $userApiUrl = getenv('DS_USER_API_HOST') . ':' . getenv('DS_USER_API_PORT') . '/user';
     $ch = curl_init();
@@ -57,6 +57,7 @@ class MBC_UserAPIRegistration
     // Remove entry from queue
     MessageBroker::sendAck($payload);
     
+    echo '------- MBC_UserAPIRegistration $payload: ' . print_r($payload, TRUE) . ' -------', "\n";
     echo '------- MBC_UserAPIRegistration END #' . $payload->delivery_info['delivery_tag'] . ' - ' . date('D M j G:i:s:u T Y') . ' -------', "\n";
   }
 
