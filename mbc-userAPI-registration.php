@@ -62,7 +62,6 @@ class MBC_UserAPIRegistration
      */
     // MessageBroker::sendAck($payload);
     
-    echo '------- MBC_UserAPIRegistration $payload: ' . print_r($payload, TRUE) . ' -------', "\n";
     echo '------- MBC_UserAPIRegistration END #' . $payload->delivery_info['delivery_tag'] . ' - ' . date('D M j G:i:s:u T Y') . ' -------', "\n";
   }
 
