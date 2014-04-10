@@ -27,6 +27,8 @@ class MBC_UserAPIRegistration
    *   The contents of the queue entry
    */
   public function updateUserAPI($payload) {
+    
+    echo '------- MBC_UserAPIRegistration START #' . $payload->delivery_info['delivery_tag'] . ' - ' . date('D M j G:i:s:u T Y') . ' -------', "\n";
 
     $payloadDetails = unserialize($payload->body);
 
@@ -40,6 +42,8 @@ class MBC_UserAPIRegistration
     if (isset($payloadDetails['mobile']) && $payloadDetails['mobile'] != NULL) {
       $post['mobile'] = $payloadDetails['mobile'];
     }
+    
+    echo '------- MBC_UserAPIRegistration $post: ' . print_r($post) . ' -------', "\n";
 
     $userApiUrl = getenv('DS_USER_API_HOST') . ':' . getenv('DS_USER_API_PORT') . '/user';
     $ch = curl_init();
@@ -52,6 +56,8 @@ class MBC_UserAPIRegistration
 
     // Remove entry from queue
     MessageBroker::sendAck($payload);
+    
+    echo '------- MBC_UserAPIRegistration END #' . $payload->delivery_info['delivery_tag'] . ' - ' . date('D M j G:i:s:u T Y') . ' -------', "\n";
   }
 
 }
