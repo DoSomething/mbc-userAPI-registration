@@ -35,9 +35,11 @@ class MBC_UserAPIRegistration
     // There will only ever be one campaign entry in the payload
     $post = array(
       'email' => $payloadDetails['email'],
+      'mobile' => $payloadDetails['mobile'],
       'drupal_uid' => $payloadDetails['uid'],
       'birthdate_timestamp' => $payloadDetails['birthdate'],
       'drupal_register_timestamp' => $payloadDetails['activity_timestamp'],
+      'first_name' => $payloadDetails['merge_vars']['FNAME'],
     );
     if (isset($payloadDetails['mobile']) && $payloadDetails['mobile'] != NULL) {
       $post['mobile'] = $payloadDetails['mobile'];
