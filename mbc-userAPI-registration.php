@@ -27,7 +27,7 @@ class MBC_UserAPIRegistration
    *   The contents of the queue entry
    */
   public function updateUserAPI($payload) {
-    
+
     echo '------- MBC_UserAPIRegistration START #' . $payload->delivery_info['delivery_tag'] . ' - ' . date('D M j G:i:s:u T Y') . ' -------', "\n";
 
     $payloadDetails = unserialize($payload->body);
@@ -40,6 +40,8 @@ class MBC_UserAPIRegistration
       'birthdate_timestamp' => $payloadDetails['birthdate'],
       'drupal_register_timestamp' => $payloadDetails['activity_timestamp'],
       'first_name' => $payloadDetails['merge_vars']['FNAME'],
+      'last_name' => $payloadDetails['merge_vars']['LNAME'],
+      'subscribed' => $payloadDetails['subscribed'],
     );
     if (isset($payloadDetails['mobile']) && $payloadDetails['mobile'] != NULL) {
       $post['mobile'] = $payloadDetails['mobile'];
@@ -56,14 +58,6 @@ class MBC_UserAPIRegistration
     $result = curl_exec($ch);
     curl_close($ch);
 
-    // Remove entry from queue
-    // @todo: Skipping sendAck as consumeMessage issues a $channel->close(); which might explain the:
-    /*
-       PHP Fatal error:  Uncaught exception 'PhpAmqpLib\Exception\AMQPProtocolChannelException' with message
-       'PRECONDITION_FAILED - unknown delivery tag 1' in /opt/rabbit/mbc-userAPI-registration/vendor/videlalvaro/php-amqplib/PhpAmqpLib/Channel/AMQPChannel.php:115
-     */
-    // MessageBroker::sendAck($payload);
-    
     echo '------- MBC_UserAPIRegistration END #' . $payload->delivery_info['delivery_tag'] . ' - ' . date('D M j G:i:s:u T Y') . ' -------', "\n";
   }
 
