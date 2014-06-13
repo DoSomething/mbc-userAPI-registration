@@ -28,7 +28,7 @@ class MBC_UserAPIRegistration
    */
   public function updateUserAPI($payload) {
 
-    echo '------- MBC_UserAPIRegistration START #' . $payload->delivery_info['delivery_tag'] . ' - ' . date('D M j G:i:s:u T Y') . ' -------', "\n";
+    echo '------- MBC_UserAPIRegistration START #' . $payload->delivery_info['delivery_tag'] . ' - ' . date('D M j G:i:s T Y') . ' -------', "\n";
 
     $payloadDetails = unserialize($payload->body);
 
@@ -40,16 +40,16 @@ class MBC_UserAPIRegistration
       'birthdate_timestamp' => $payloadDetails['birthdate'],
       'drupal_register_timestamp' => $payloadDetails['activity_timestamp'],
       'first_name' => $payloadDetails['merge_vars']['FNAME'],
-      'last_name' => $payloadDetails['merge_vars']['LNAME'],
+      'last_name' => isset($payloadDetails['merge_vars']['LNAME']) ? $payloadDetails['merge_vars']['LNAME'] : '',
       'subscribed' => $payloadDetails['subscribed'],
     );
     if (isset($payloadDetails['mobile']) && $payloadDetails['mobile'] != NULL) {
       $post['mobile'] = $payloadDetails['mobile'];
     }
-    
-    echo '------- MBC_UserAPIRegistration $post: ' . print_r($post, TRUE) . ' -------', "\n";
 
     $userApiUrl = getenv('DS_USER_API_HOST') . ':' . getenv('DS_USER_API_PORT') . '/user';
+    echo 'cURL POST START - ' . $userApiUrl . date('D M j G:i:s T Y'), "\n";
+
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $userApiUrl);
     curl_setopt($ch, CURLOPT_POST, count($post));
@@ -58,7 +58,7 @@ class MBC_UserAPIRegistration
     $result = curl_exec($ch);
     curl_close($ch);
 
-    echo '------- MBC_UserAPIRegistration END #' . $payload->delivery_info['delivery_tag'] . ' - ' . date('D M j G:i:s:u T Y') . ' -------', "\n";
+    echo '------- MBC_UserAPIRegistration END #' . $payload->delivery_info['delivery_tag'] . ' - ' . date('D M j G:i:s T Y') . ' -------', "\n";
   }
 
 }
