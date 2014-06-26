@@ -35,20 +35,29 @@ class MBC_UserAPIRegistration
     // There will only ever be one campaign entry in the payload
     $post = array(
       'email' => $payloadDetails['email'],
-      'mobile' => $payloadDetails['mobile'],
-      'drupal_uid' => $payloadDetails['uid'],
-      'birthdate_timestamp' => $payloadDetails['birthdate'],
-      'drupal_register_timestamp' => $payloadDetails['activity_timestamp'],
-      'first_name' => $payloadDetails['merge_vars']['FNAME'],
-      'last_name' => isset($payloadDetails['merge_vars']['LNAME']) ? $payloadDetails['merge_vars']['LNAME'] : '',
       'subscribed' => $payloadDetails['subscribed'],
     );
+    if (isset($payloadDetails['uid']) && $payloadDetails['uid'] != NULL) {
+      $post['drupal_uid'] = $payloadDetails['uid'];
+    }
+    if (isset($payloadDetails['birthdate']) && $payloadDetails['birthdate'] != NULL) {
+      $post['birthdate_timestamp'] = $payloadDetails['birthdate'];
+    }
+    if (isset($payloadDetails['activity_timestamp']) && $payloadDetails['activity_timestamp'] != NULL) {
+      $post['drupal_register_timestamp'] = $payloadDetails['activity_timestamp'];
+    }
+    if (isset($payloadDetails['merge_vars']['LNAME']) && $payloadDetails['merge_vars']['LNAME'] != NULL) {
+      $post['last_name'] = $payloadDetails['merge_vars']['LNAME'];
+    }
+    if (isset($payloadDetails['merge_vars']['FNAME']) && $payloadDetails['merge_vars']['FNAME'] != NULL) {
+      $post['first_name'] = $payloadDetails['merge_vars']['FNAME'];
+    }
     if (isset($payloadDetails['mobile']) && $payloadDetails['mobile'] != NULL) {
       $post['mobile'] = $payloadDetails['mobile'];
     }
 
     $userApiUrl = getenv('DS_USER_API_HOST') . ':' . getenv('DS_USER_API_PORT') . '/user';
-    echo 'cURL POST START - ' . $userApiUrl . date('D M j G:i:s T Y'), "\n";
+    echo 'post: ' . print_r($post, TRUE), "\n";
 
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $userApiUrl);
@@ -58,7 +67,7 @@ class MBC_UserAPIRegistration
     $result = curl_exec($ch);
     curl_close($ch);
 
-    echo '------- MBC_UserAPIRegistration END #' . $payload->delivery_info['delivery_tag'] . ' - ' . date('D M j G:i:s T Y') . ' -------', "\n";
+    echo '------- MBC_UserAPIRegistration END #' . $payload->delivery_info['delivery_tag'] . ' - result: ' .  $result . ' - ' . date('D M j G:i:s T Y') . ' -------', "\n";
   }
 
 }
