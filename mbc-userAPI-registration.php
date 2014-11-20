@@ -1,11 +1,12 @@
 <?php
 /**
- * mbc-user-campaign.php
+ * mbc-userAPI-campaign.php
  *
- * Collect user campaign activity from the userCampaignActivityQueue. Update the
- * UserAPI / database with user activity.
+ * Collect user campaign activity from the userAPIRegistrationQueue. Update the
+ * UserAPI / database with user registration activity.
  */
 
+date_default_timezone_set('America/New_York');
 // Load up the Composer autoload magic
 require_once __DIR__ . '/vendor/autoload.php';
 
@@ -28,7 +29,7 @@ class MBC_UserAPIRegistration
    */
   public function updateUserAPI($payload) {
 
-    echo '------- MBC_UserAPIRegistration START #' . $payload->delivery_info['delivery_tag'] . ' - ' . date('D M j G:i:s T Y') . ' -------', "\n";
+    echo '------- MBC_UserAPIRegistration START #' . $payload->delivery_info['delivery_tag'] . ' - ' . date('D M j G:i:s T Y') . ' -------', PHP_EOL;
 
     $payloadDetails = unserialize($payload->body);
 
@@ -128,7 +129,7 @@ class MBC_UserAPIRegistration
       $result = curl_exec($ch);
       curl_close($ch);
 
-      echo '------- MBC_UserAPIRegistration END #' . $payload->delivery_info['delivery_tag'] . ' - result: ' .  $result . ' - ' . date('D M j G:i:s T Y') . ' -------', "\n";
+      echo '------- MBC_UserAPIRegistration END #' . $payload->delivery_info['delivery_tag'] . ' - result: ' .  $result . ' - ' . date('D M j G:i:s T Y') . ' -------', PHP_EOL;
     }
 
   }
@@ -164,6 +165,7 @@ $config = array(
   ),
   'routingKey' => getenv("MB_USER_API_REGISTRATION_ROUTING_KEY"),
 );
+
 
 // Kick off
 $mb = new MessageBroker($credentials, $config);
