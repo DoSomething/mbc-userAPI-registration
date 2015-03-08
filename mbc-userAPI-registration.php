@@ -119,6 +119,12 @@ class MBC_UserAPIRegistration
         $post['role'] = $payloadDetails['role'];
       }
 
+      if (isset($payloadDetails['source']) && $payloadDetails['source'] != NULL) {
+        $post['source'] = $payloadDetails['source'];
+      }
+
+      echo '------- mbc-userAPI-registration - MBC_UserAPIRegistration: $post: ' . print_r($post, TRUE) . ' - ' . date('j D M Y G:i:s Y') . ' -------', PHP_EOL;
+
       $userApiUrl = getenv('DS_USER_API_HOST') . ':' . getenv('DS_USER_API_PORT') . '/user';
 
       $ch = curl_init();
