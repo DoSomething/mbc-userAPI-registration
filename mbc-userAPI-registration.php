@@ -25,34 +25,39 @@ $credentials = array(
   'password' => getenv("RABBITMQ_PASSWORD"),
   'vhost' => getenv("RABBITMQ_VHOST"),
 );
-
-$config = array(
-  'exchange' => array(
-    'name' => getenv("MB_TRANSACTIONAL_EXCHANGE"),
-    'type' => getenv("MB_TRANSACTIONAL_EXCHANGE_TYPE"),
-    'passive' => getenv("MB_TRANSACTIONAL_EXCHANGE_PASSIVE"),
-    'durable' => getenv("MB_TRANSACTIONAL_EXCHANGE_DURABLE"),
-    'auto_delete' => getenv("MB_TRANSACTIONAL_EXCHANGE_AUTO_DELETE"),
-  ),
-  'queue' => array(
-    'userAPIRegistration' => array(
-      'name' => getenv("MB_USER_API_REGISTRATION_QUEUE"),
-      'passive' => getenv("MB_USER_API_REGISTRATION_QUEUE_PASSIVE"),
-      'durable' => getenv("MB_USER_API_REGISTRATION_QUEUE_DURABLE"),
-      'exclusive' => getenv("MB_USER_API_REGISTRATION_QUEUE_EXCLUSIVE"),
-      'auto_delete' => getenv("MB_USER_API_REGISTRATION_QUEUE_AUTO_DELETE"),
-      'bindingKey' => getenv("MB_USER_API_REGISTRATION_QUEUE_TOPIC_MB_TRANSACTIONAL_EXCHANGE_PATTERN"),
-    ),
-  ),
-  'routingKey' => getenv("MB_USER_API_REGISTRATION_ROUTING_KEY"),
-);
 $settings = array(
   'northstar_api_host' => getenv("NORTHSTAR_API_HOST"),
   'northstar_api_id' => getenv("NORTHSTAR_API_ID"),
   'northstar_api_key' => getenv("NORTHSTAR_API_KEY"),
 );
 
+$config = array();
+$source = __DIR__ . '/messagebroker-config/mb_config.json';
+$mb_config = new MB_Configuration($source, $settings);
+$transactionalExchange = $mb_config->exchangeSettings('transactionalExchange');
+
+$config['exchange'] = array(
+  'name' => $transactionalExchange->name,
+  'type' =>$transactionalExchange->type,
+  'passive' => $transactionalExchange->passive,
+  'durable' => $transactionalExchange->durable,
+  'auto_delete' => $transactionalExchange->auto_delete,
+);
+$config['queue'][] = array(
+  'name' => $transactionalExchange->queues->userAPIRegistrationQueue->name,
+  'passive' => $transactionalExchange->queues->userAPIRegistrationQueue->passive,
+  'durable' => $transactionalExchange->queues->userAPIRegistrationQueue->durable,
+  'exclusive' => $transactionalExchange->queues->userAPIRegistrationQueue->exclusive,
+  'auto_delete' => $transactionalExchange->queues->userAPIRegistrationQueue->auto_delete,
+  'bindingKey' => $transactionalExchange->queues->userAPIRegistrationQueue->binding_key,
+);
+$config['routingKey'] = $transactionalExchange->queues->userAPIRegistrationQueue->routing_key;
+
+
+echo '------- mbc-userAPI-registrations START: ' . date('D M j G:i:s T Y') . ' -------', PHP_EOL;
 
 // Kick off
 $mb = new MessageBroker($credentials, $config);
 $mb->consumeMessage(array(new MBC_UserAPIRegistration(), 'updateUserAPI'));
+
+echo '------- mbc-userAPI-registrations END: ' . date('D M j G:i:s T Y') . ' -------', PHP_EOL;
