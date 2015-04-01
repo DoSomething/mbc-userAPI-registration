@@ -171,6 +171,11 @@ $config = array(
   ),
   'routingKey' => getenv("MB_USER_API_REGISTRATION_ROUTING_KEY"),
 );
+$settings = array(
+  'northstar_api_host' => getenv("NORTHSTAR_API_HOST"),
+  'northstar_api_id' => getenv("NORTHSTAR_API_ID"),
+  'northstar_api_key' => getenv("NORTHSTAR_API_KEY"),
+);
 
 
 // Kick off
