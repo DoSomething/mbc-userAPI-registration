@@ -27,7 +27,9 @@ $credentials = array(
 );
 $settings = array(
   'stathat_ez_key' => getenv("STATHAT_EZKEY"),
-  'use_stathat_tracking' => getenv('USE_STAT_TRACKING'),
+  'use_stathat_tracking' => getenv("USE_STAT_TRACKING"),
+  'ds_user_api_host' =>  getenv("DS_USER_API_HOST"),
+  'ds_user_api_port' =>  getenv("DS_USER_API_PORT"),
   'northstar_api_host' => getenv("NORTHSTAR_API_HOST"),
   'northstar_api_id' => getenv("NORTHSTAR_API_ID"),
   'northstar_api_key' => getenv("NORTHSTAR_API_KEY"),
