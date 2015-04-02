@@ -1,8 +1,7 @@
 <?php
 
-<?php
-
 use DoSomething\MBStatTracker\StatHat;
+use DoSomething\MB_Toolbox\MB_Toolbox;
 
 /**
  * MBC_UserAPIRegistration class - functionality related to the Message Broker
@@ -11,6 +10,46 @@ use DoSomething\MBStatTracker\StatHat;
 
 class MBC_UserAPIRegistration
 {
+
+  /**
+   * Setting from external services - Mailchimp.
+   *
+   * @var array
+   */
+  private $settings;
+
+  /**
+   * Setting from external services - Mailchimp.
+   *
+   * @var array
+   */
+  private $statHat;
+
+  /**
+   * Setting from external services - StatHat.
+   *
+   * @var object
+   */
+  private $toolbox;
+
+  /**
+   * Constructor for MBC_UserEvent
+   *
+   * @param array $credentials
+   *   Secret settings from mb-secure-config.inc
+   *
+   * @param array $config
+   *   Configuration settings from mb-config.inc
+   */
+  public function __construct($settings) {
+
+    $this->settings = $settings;
+    $this->toolbox = new MB_Toolbox($settings);
+
+    $this->statHat = new StatHat($this->settings['stathat_ez_key'], 'mbc-userAPI-registration:');
+    $this->statHat->setIsProduction($this->settings['use_stathat_tracking']);
+  }
+
 
   /**
    * Submit user campaign activity to the UserAPI

@@ -26,6 +26,8 @@ $credentials = array(
   'vhost' => getenv("RABBITMQ_VHOST"),
 );
 $settings = array(
+  'stathat_ez_key' => getenv("STATHAT_EZKEY"),
+  'use_stathat_tracking' => getenv('USE_STAT_TRACKING'),
   'northstar_api_host' => getenv("NORTHSTAR_API_HOST"),
   'northstar_api_id' => getenv("NORTHSTAR_API_ID"),
   'northstar_api_key' => getenv("NORTHSTAR_API_KEY"),
@@ -43,21 +45,23 @@ $config['exchange'] = array(
   'durable' => $transactionalExchange->durable,
   'auto_delete' => $transactionalExchange->auto_delete,
 );
-$config['queue'][] = array(
-  'name' => $transactionalExchange->queues->userAPIRegistrationQueue->name,
-  'passive' => $transactionalExchange->queues->userAPIRegistrationQueue->passive,
-  'durable' => $transactionalExchange->queues->userAPIRegistrationQueue->durable,
-  'exclusive' => $transactionalExchange->queues->userAPIRegistrationQueue->exclusive,
-  'auto_delete' => $transactionalExchange->queues->userAPIRegistrationQueue->auto_delete,
-  'bindingKey' => $transactionalExchange->queues->userAPIRegistrationQueue->binding_key,
-);
-$config['routingKey'] = $transactionalExchange->queues->userAPIRegistrationQueue->routing_key;
+foreach ($transactionalExchange->queues->userAPIRegistrationQueue->binding_patterns as $bindingPattern) {
+  $config['queue'][] = array(
+    'name' => $transactionalExchange->queues->userAPIRegistrationQueue->name,
+    'passive' => $transactionalExchange->queues->userAPIRegistrationQueue->passive,
+    'durable' => $transactionalExchange->queues->userAPIRegistrationQueue->durable,
+    'exclusive' => $transactionalExchange->queues->userAPIRegistrationQueue->exclusive,
+    'auto_delete' => $transactionalExchange->queues->userAPIRegistrationQueue->auto_delete,
+    'bindingKey' => $bindingPattern,
+  );
+  $config['routingKey'] = $transactionalExchange->queues->userAPIRegistrationQueue->routing_key;
+}
 
 
 echo '------- mbc-userAPI-registrations START: ' . date('D M j G:i:s T Y') . ' -------', PHP_EOL;
 
 // Kick off
 $mb = new MessageBroker($credentials, $config);
-$mb->consumeMessage(array(new MBC_UserAPIRegistration(), 'updateUserAPI'));
+$mb->consumeMessage(array(new MBC_UserAPIRegistration($settings), 'updateUserAPI'));
 
 echo '------- mbc-userAPI-registrations END: ' . date('D M j G:i:s T Y') . ' -------', PHP_EOL;
