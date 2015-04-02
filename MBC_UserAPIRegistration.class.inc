@@ -10,7 +10,7 @@ use DoSomething\MB_Toolbox\MB_Toolbox;
 
 class MBC_UserAPIRegistration
 {
-  
+
   const AURORA_API_VERSION = 1;
 
   /**
@@ -62,13 +62,13 @@ class MBC_UserAPIRegistration
   public function updateUserAPI($payload) {
 
     echo '------- MBC_UserAPIRegistration START #' . $payload->delivery_info['delivery_tag'] . ' - ' . date('D M j G:i:s T Y') . ' -------', PHP_EOL;
-    
+
     $payloadDetails = unserialize($payload->body);
 
     // There will only ever be one campaign entry in the payload
     // Skip if @mobile submission
     if (strpos($payloadDetails['email'], '@mobile') === FALSE) {
-      
+
       $allowedFields = array(
        'email',
        'subscribed',
@@ -99,7 +99,7 @@ class MBC_UserAPIRegistration
        'role',
        'source'
       );
-      
+
       foreach($allowedFields as $field) {
         if (isset($payloadDetails[$field])) {
           if ($field == 'uid') {
@@ -126,15 +126,10 @@ class MBC_UserAPIRegistration
       }
 
       echo '------- mbc-userAPI-registration - MBC_UserAPIRegistration: $post: ' . print_r($post, TRUE) . ' - ' . date('j D M Y G:i:s Y') . ' -------', PHP_EOL;
-      
-      $bla = FALSE;
-if ($bla) {
-  $bla = TRUE;
-}
 
       $mbUserApiUrl = $this->settings['ds_user_api_host'] . ':' . $this->settings['ds_user_api_port'] . '/user';
       $results = $this->toolbox->curlPOST($mbUserApiUrl, $post);
-      
+
       $dsUserApiUrl = $this->settings['northstar_api_host'] . '/' . self::AURORA_API_VERSION . '/users';
       $results = $this->toolbox->curlPOST($dsUserApiUrl, $post);
 
