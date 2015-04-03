@@ -52,7 +52,6 @@ class MBC_UserAPIRegistration
     $this->statHat->setIsProduction($this->settings['use_stathat_tracking']);
   }
 
-
   /**
    * Submit user campaign activity to the UserAPI
    *
@@ -126,11 +125,7 @@ class MBC_UserAPIRegistration
           }
         }
       }
-      
-      $bla = FALSE;
-if ($bla) {
-  $bla = TRUE;
-}
+
 
       echo '------- mbc-userAPI-registration - MBC_UserAPIRegistration: $post: ' . print_r($post, TRUE) . ' - ' . date('j D M Y G:i:s Y') . ' -------', PHP_EOL;
 
