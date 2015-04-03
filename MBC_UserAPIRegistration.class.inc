@@ -126,7 +126,6 @@ class MBC_UserAPIRegistration
         }
       }
 
-
       echo '------- mbc-userAPI-registration - MBC_UserAPIRegistration: $post: ' . print_r($post, TRUE) . ' - ' . date('j D M Y G:i:s Y') . ' -------', PHP_EOL;
 
       $mbUserApiUrl = $this->settings['ds_user_api_host'] . ':' . $this->settings['ds_user_api_port'] . '/user';

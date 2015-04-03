@@ -42,7 +42,7 @@ $transactionalExchange = $mb_config->exchangeSettings('transactionalExchange');
 
 $config['exchange'] = array(
   'name' => $transactionalExchange->name,
-  'type' =>$transactionalExchange->type,
+  'type' => $transactionalExchange->type,
   'passive' => $transactionalExchange->passive,
   'durable' => $transactionalExchange->durable,
   'auto_delete' => $transactionalExchange->auto_delete,
