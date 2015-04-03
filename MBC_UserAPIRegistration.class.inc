@@ -113,17 +113,24 @@ class MBC_UserAPIRegistration
           elseif ($field == 'activity_timestamp') {
             $post['drupal_register_timestamp'] = $payloadDetails['activity_timestamp'];
           }
-          elseif (isset($filed['merge_vars']['FNAME'])) {
-              $post['first_name'] = $filed['merge_vars']['FNAME'];
-          }
-          elseif (isset($filed['merge_vars']['LNAME'])) {
-            $post['last_name'] = $filed['merge_vars']['LNAME'];
+          elseif ($field == 'merge_vars') {
+            if (isset($payloadDetails['merge_vars']['FNAME'])) {
+              $post['first_name'] = $payloadDetails['merge_vars']['FNAME'];
+            }
+            if (isset($payloadDetails['merge_vars']['LNAME'])) {
+              $post['last_name'] = $payloadDetails['merge_vars']['LNAME'];
+            }
           }
           else {
             $post[$field] = $payloadDetails[$field];
           }
         }
       }
+      
+      $bla = FALSE;
+if ($bla) {
+  $bla = TRUE;
+}
 
       echo '------- mbc-userAPI-registration - MBC_UserAPIRegistration: $post: ' . print_r($post, TRUE) . ' - ' . date('j D M Y G:i:s Y') . ' -------', PHP_EOL;
 
