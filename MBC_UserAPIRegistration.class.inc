@@ -130,11 +130,13 @@ class MBC_UserAPIRegistration
 
       $mbUserApiUrl = $this->settings['ds_user_api_host'] . ':' . $this->settings['ds_user_api_port'] . '/user';
       $results = $this->toolbox->curlPOST($mbUserApiUrl, $post);
+      echo '- POST: ' . $mbUserApiUrl . ' - results: ' .  print_r($results, TRUE), PHP_EOL;
 
       $dsUserApiUrl = $this->settings['northstar_api_host'] . '/' . self::AURORA_API_VERSION . '/users';
       $results = $this->toolbox->curlPOST($dsUserApiUrl, $post);
+      echo '- POST: ' . $dsUserApiUrl . ' - results: ' .  print_r($results, TRUE), PHP_EOL;
 
-      echo '------- MBC_UserAPIRegistration END #' . $payload->delivery_info['delivery_tag'] . ' - result: ' .  $result . ' - ' . date('D M j G:i:s T Y') . ' -------', PHP_EOL;
+      echo '------- MBC_UserAPIRegistration END #' . $payload->delivery_info['delivery_tag'] . ' - ' . date('D M j G:i:s T Y') . ' -------', PHP_EOL;
     }
 
   }
