@@ -11,7 +11,7 @@ use DoSomething\MB_Toolbox\MB_Toolbox;
 class MBC_UserAPIRegistration
 {
 
-  const AURORA_API_VERSION = 1;
+  const AURORA_API_VERSION = 'v1';
 
   /**
    * Setting from external services - Mailchimp.
