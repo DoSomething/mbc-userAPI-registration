@@ -1,6 +1,6 @@
 #!/bin/bash
 ##
-# Uninstallation script for mbp-user-import
+# Uninstallation script for mbp-userAPI-registration
 ##
 
 # Remove symlink to configuration settings repo
