@@ -1,146 +1,191 @@
 <?php
+/**
+ *
+ */
 
+ namespace DoSomething\MBC_UserAPI_Registration;
+
+use DoSomething\MB_Toolbox\MB_Configuration;
 use DoSomething\MBStatTracker\StatHat;
-use DoSomething\MB_Toolbox\MB_Toolbox;
+use DoSomething\MB_Toolbox\MB_Toolbox_BaseConsumer;
+use DoSomething\MB_Toolbox\MB_Toolbox_cURL;
+use \Exception;
 
 /**
  * MBC_UserAPIRegistration class - functionality related to the Message Broker
  * producer mbp-user-import.
  */
 
-class MBC_UserAPIRegistration
+class MBC_UserAPI_Registration_Consumer extends MB_Toolbox_BaseConsumer
 {
 
-  const AURORA_API_VERSION = 'v1';
+  /**
+   * cURL object to access cUrl related methods
+   * @var object $mbToolboxcURL
+   */
+  protected $mbToolboxcURL;
 
   /**
-   * Setting from external services - Mailchimp.
    *
-   * @var array
+   * @var string $curlUrl
    */
-  private $settings;
+  private $curlUrl;
 
   /**
-   * Setting from external services - Mailchimp.
-   *
-   * @var array
+   * __construct():
    */
-  private $statHat;
+  public function __construct() {
 
-  /**
-   * Setting from external services - StatHat.
-   *
-   * @var object
-   */
-  private $toolbox;
-
-  /**
-   * Constructor for MBC_UserEvent
-   *
-   * @param array $credentials
-   *   Secret settings from mb-secure-config.inc
-   *
-   * @param array $config
-   *   Configuration settings from mb-config.inc
-   */
-  public function __construct($settings) {
-
-    $this->settings = $settings;
-    $this->toolbox = new MB_Toolbox($settings);
-
-    $this->statHat = new StatHat($this->settings['stathat_ez_key'], 'mbc-userAPI-registration:');
-    $this->statHat->setIsProduction($this->settings['use_stathat_tracking']);
+    $this->mbConfig = MB_Configuration::getInstance();
+    $this->mbToolboxcURL = $this->mbConfig->getProperty('mbToolboxcURL');
+    $mbUserAPI = $this->mbConfig->getProperty('mb_user_api_config');
+    $this->curlUrl = $mbUserAPI['host'];
+    if (isset($mbUserAPI['port'])) {
+      $this->curlUrl .= ':' . $mbUserAPI['port'];
+    }
+    $this->curlUrl .= '/user';
   }
 
   /**
-   * Submit user campaign activity to the UserAPI
+   * Callback for messages arriving in the userAPIRegistrationQueue.
    *
-   * @param array $payload
-   *   The contents of the queue entry
+   * @param string $payload
+   *   A seralized message to be processed.
    */
-  public function updateUserAPI($payload) {
+  public function consumeUserAPIRegistrationQueue($payload) {
 
-    echo '------- MBC_UserAPIRegistration START #' . $payload->delivery_info['delivery_tag'] . ' - ' . date('D M j G:i:s T Y') . ' -------', PHP_EOL;
+    echo '-------  mbc-userAPI-register -  MBC_UserAPI_Registration_Consumer->consumeUserAPIRegistrationQueue() START -------', PHP_EOL;
 
-    $payloadDetails = unserialize($payload->body);
+    parent::consumeQueue($payload);
+    echo '** Consuming: ' . $this->message['email'], PHP_EOL;
 
-    // There will only ever be one campaign entry in the payload
-    // Skip if @mobile submission
-    if (strpos($payloadDetails['email'], '@mobile') === FALSE) {
+    if ($this->canProcess()) {
 
-      $allowedFields = array(
-       'email',
-       'subscribed',
-       'uid',
-       'drupal_uid',
-       'birthdate',
-       'birthdate_timestamp',
-       'activity_timestamp',
-       'merge_vars',
-       'mobile',
-       'address1',
-       'address2',
-       'city',
-       'stae',
-       'zip',
-       'hs_gradyear',
-       'race',
-       'religion',
-       'hs_name',
-       'college_name',
-       'major_name',
-       'degree_type',
-       'sat_math',
-       'sat_verbal',
-       'sat_writing',
-       'act_math',
-       'gpa',
-       'role',
-       'source'
-      );
+      try {
 
-      foreach($allowedFields as $field) {
-        if (isset($payloadDetails[$field])) {
-          if ($field == 'uid') {
-            $post['drupal_uid'] = $payloadDetails['uid'];
-            $post['uid'] = $payloadDetails['uid'];
-          }
-          elseif ($field == 'birthdate') {
-            $post['birthdate'] = date('c', $payloadDetails['birthdate']);
-            $post['birthdate_timestamp'] = $payloadDetails['birthdate'];
-          }
-          elseif ($field == 'activity_timestamp') {
-            $post['drupal_register_timestamp'] = $payloadDetails['activity_timestamp'];
-          }
-          elseif ($field == 'merge_vars') {
-            if (isset($payloadDetails['merge_vars']['FNAME'])) {
-              $post['first_name'] = $payloadDetails['merge_vars']['FNAME'];
-            }
-            if (isset($payloadDetails['merge_vars']['LNAME'])) {
-              $post['last_name'] = $payloadDetails['merge_vars']['LNAME'];
-            }
-          }
-          else {
-            $post[$field] = $payloadDetails[$field];
-          }
-        }
+        $this->setter($this->message);
+        $this->process();
+      }
+      catch(Exception $e) {
+        echo 'Error submissing user registration for email address: ' . $this->message['email'] . ' to mb-user-api. Error: ' . $e->getMessage();
       }
 
-      echo '------- mbc-userAPI-registration - MBC_UserAPIRegistration: $post: ' . print_r($post, TRUE) . ' - ' . date('j D M Y G:i:s Y') . ' -------', PHP_EOL;
-
-      $mbUserApiUrl = $this->settings['ds_user_api_host'] . ':' . $this->settings['ds_user_api_port'] . '/user';
-      $results = $this->toolbox->curlPOST($mbUserApiUrl, $post);
-      echo '- POST: ' . $mbUserApiUrl . ' - results: ' .  print_r($results, TRUE), PHP_EOL;
-
-      /*
-      $dsUserApiUrl = $this->settings['northstar_api_host'] . '/' . self::AURORA_API_VERSION . '/users';
-      $results = $this->toolbox->curlPOST($dsUserApiUrl, $post);
-      echo '- POST: ' . $dsUserApiUrl . ' - results: ' .  print_r($results, TRUE), PHP_EOL;
-      */
-
-      echo '------- MBC_UserAPIRegistration END #' . $payload->delivery_info['delivery_tag'] . ' - ' . date('D M j G:i:s T Y') . ' -------', PHP_EOL;
+    }
+    else {
+      echo '=> ' . $this->message['email'] . ' can\'t be processed.', PHP_EOL;
+      $this->messageBroker->sendAck($this->message['payload']);
     }
 
+    echo '-------  mbc-userAPI-register -  MBC_UserAPI_Registration_Consumer->consumeUserAPIRegistrationQueue() END -------', PHP_EOL . PHP_EOL;
+  }
+
+  /**
+   * Conditions to test before processing the message.
+   *
+   * @return boolean
+   */
+  protected function canProcess() {
+
+    if (!(isset($this->message['email']))) {
+      echo '- canProcess(), email not set.', PHP_EOL;
+      return FALSE;
+    }
+    // Don't process 1234@mobile email address (legacy hack in Drupal app to support mobile registrations)
+    // BUT allow processing email addresses: joe@mobilemaster.com
+    $mobilePos = strpos($this->message['email'], '@mobile');
+    if ($mobilePos > 0 && (strlen($this->message['email']) - $mobilePos) > 7) {
+      echo '- canProcess(), Drupal app fake @mobile email address.', PHP_EOL;
+      return FALSE;
+    }
+
+    return TRUE;
+  }
+
+  /**
+   * Construct values for submission to mb-users-api service.
+   *
+   * @param array $message
+   *   The message to process based on what was collected from the queue being processed.
+   */
+  protected function setter($message) {
+
+    $this->submission = [];
+
+    $allowedFields = array(
+      'email',
+      'subscribed',
+      'uid',
+      'drupal_uid',
+      'birthdate',
+      'birthdate_timestamp',
+      'activity_timestamp',
+      'user_language',
+      'merge_vars',
+      'mobile',
+      'address1',
+      'address2',
+      'city',
+      'state',
+      'user_county',
+      'zip',
+      'hs_gradyear',
+      'race',
+      'religion',
+      'hs_name',
+      'college_name',
+      'major_name',
+      'degree_type',
+      'sat_math',
+      'sat_verbal',
+      'sat_writing',
+      'act_math',
+      'gpa',
+      'role',
+      'source'
+     );
+    foreach($allowedFields as $field) {
+      if (isset($message[$field])) {
+        if ($field == 'uid') {
+          $this->submission['drupal_uid'] = $message['uid'];
+          $this->submission['uid'] = $message['uid'];
+        }
+        elseif ($field == 'birthdate') {
+          $this->submission['birthdate'] = date('c', $message['birthdate']);
+          $this->submission['birthdate_timestamp'] = $message['birthdate'];
+        }
+        elseif ($field == 'activity_timestamp') {
+          $this->submission['drupal_register_timestamp'] = $message['activity_timestamp'];
+        }
+        elseif ($field == 'merge_vars') {
+          if (isset($payloadDetails['merge_vars']['FNAME'])) {
+            $this->submission['first_name'] = $message['merge_vars']['FNAME'];
+          }
+          if (isset($payloadDetails['merge_vars']['LNAME'])) {
+            $this->submission['last_name'] = $message['merge_vars']['LNAME'];
+          }
+        }
+        else {
+          $this->submission[$field] = $message[$field];
+        }
+      }
+    }
+
+  }
+
+  /**
+   * process(): Submit formatted message values to mb-users-api /user/banned.
+   */
+  protected function process() {
+
+    echo '-> post: ' . print_r($post, TRUE) . ' - ' . date('j D M Y G:i:s Y') . ' -------', PHP_EOL;
+
+    $results = $this->mbToolboxcURL->curlPOST($this->curlUrl, $this->submission);
+    if ($results[1] == 200) {
+      $this->messageBroker->sendAck($this->message['payload']);
+    }
+    else {
+      throw new Exception('Error submitting registration to mb-user-api: ' . print_r($this->submission, TRUE));
+    }
   }
 
 }
