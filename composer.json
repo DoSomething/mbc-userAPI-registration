@@ -1,10 +1,10 @@
 {
-  "name": "https://github.com/DoSomething/mbc-userAPI-registration",
+  "name": "mbc-userAPI-registration",
   "type": "project",
   "version": "0.3.0",
   "description": "A consumer app for the Message Broker system that consumes entries on the userAPIRegistrationQueue to make entries to the UserAPI / database.",
   "keywords": ["message broker"],
-  "homepage": "https://github.com/DoSomething/mbc-user-campaign",
+  "homepage": "https://github.com/DoSomething/mbc-userAPI-registration",
   "license" : "MIT",
   "authors":
     [
