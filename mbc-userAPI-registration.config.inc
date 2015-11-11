@@ -1,12 +1,12 @@
 <?php
 /**
- * Configuration settings for mbc-userAPI-campaign.
+ * Configuration settings for mbc-userAPI-registration.
  *
- * Message Broker configuration settings for mbc-userAPI-campaign application. The MB_Configuration
+ * Message Broker configuration settings for mbc-userAPI-registration application. The MB_Configuration
  * class is used to create a singleton instance that can be referenced anywhere in the application
  * for application configuration settings.
  *
- * @package mbc-userAPI-campaign
+ * @package mbc-userAPI-registration
  * @link    https://github.com/DoSomething/mbc-userAPI-registration
  */
 
@@ -50,7 +50,6 @@ $mbConfig->setProperty('messageBroker_config', $mbRabbitConfig);
 $messageBrokerConfig = $mbConfig->getProperty('messageBroker_config');
 $mbConfig->setProperty('messageBroker', new MessageBroker($rabbitCredentials, $messageBrokerConfig));
 
-// Manage re and un subscribes as reported by MailChimp response to initial subscribes
 $mbRabbitConfig_Subscribes = $mbConfig->constructRabbitConfig('transactionalExchange', array('userMailchimpStatusQueue'));
 $mbConfig->setProperty('messageBrokerSubscribes_config', $mbRabbitConfig_Subscribes);
 $messageBrokerSubscribesConfig = $mbConfig->getProperty('messageBrokerSubscribes_config');
@@ -68,4 +67,5 @@ $mbConfig->setProperty('mb_user_api_config', array(
   'host' => getenv("MB_USER_API_HOST"),
   'port' => getenv('MB_USER_API_PORT')
 ));
+
 $mbConfig->setProperty('mbToolboxcURL', new MB_Toolbox_cURL());
