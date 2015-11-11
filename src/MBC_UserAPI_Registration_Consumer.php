@@ -193,7 +193,7 @@ class MBC_UserAPI_Registration_Consumer extends MB_Toolbox_BaseConsumer
     }
     else {
       echo '- mb-user-api ERROR: ' . print_r($results[0], TRUE), PHP_EOL;
-      $this->channel->basic_nack($this->message['original']->delivery_info['delivery_tag']);
+      $this->channel->basic_nack($this->message['payload']->delivery_info['delivery_tag']);
       throw new Exception('Error submitting registration to mb-user-api: ' . print_r($this->submission, TRUE));
     }
   }
