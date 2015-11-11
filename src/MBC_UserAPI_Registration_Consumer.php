@@ -1,6 +1,6 @@
 <?php
 /**
- *
+ * Functionality related to making user registration submissions to mb-user-api.
  */
 
  namespace DoSomething\MBC_UserAPI_Registration;
@@ -12,8 +12,8 @@ use DoSomething\MB_Toolbox\MB_Toolbox_cURL;
 use \Exception;
 
 /**
- * MBC_UserAPIRegistration class - functionality related to the Message Broker
- * producer mbp-user-import.
+ * MBC_UserAPI_Registration_Consumer class - functionality to process message entries in
+ * userAPIRegistrationQueue. Message create POSTs to mb-user-api /user.
  */
 
 class MBC_UserAPI_Registration_Consumer extends MB_Toolbox_BaseConsumer
@@ -26,16 +26,24 @@ class MBC_UserAPI_Registration_Consumer extends MB_Toolbox_BaseConsumer
   protected $mbToolboxcURL;
 
   /**
-   *
+   * The URLto POST to.
    * @var string $curlUrl
    */
   private $curlUrl;
+  
+  /**
+   * The composed submission for POSTing to mb-user-api.
+   * @var string $submission
+   */
+  private $submission;
 
   /**
-   * __construct():
+   * __construct(): Common values for class. The base class MB_Toolbox_BaseConsumer also
+   * contains properties in __construct().
    */
   public function __construct() {
 
+    parent::__construct();
     $this->mbConfig = MB_Configuration::getInstance();
     $this->mbToolboxcURL = $this->mbConfig->getProperty('mbToolboxcURL');
     $mbUserAPI = $this->mbConfig->getProperty('mb_user_api_config');
@@ -126,7 +134,7 @@ class MBC_UserAPI_Registration_Consumer extends MB_Toolbox_BaseConsumer
       'address2',
       'city',
       'state',
-      'user_county',
+      'user_country',
       'zip',
       'hs_gradyear',
       'race',
@@ -177,7 +185,7 @@ class MBC_UserAPI_Registration_Consumer extends MB_Toolbox_BaseConsumer
    */
   protected function process() {
 
-    echo '-> post: ' . print_r($post, TRUE) . ' - ' . date('j D M Y G:i:s Y') . ' -------', PHP_EOL;
+    echo '-> post: ' . print_r($this->submission, TRUE) . ' - ' . date('j D M Y G:i:s Y') . ' -------', PHP_EOL;
 
     $results = $this->mbToolboxcURL->curlPOST($this->curlUrl, $this->submission);
     if ($results[1] == 200) {
