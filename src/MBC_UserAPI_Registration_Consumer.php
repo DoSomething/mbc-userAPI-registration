@@ -30,12 +30,19 @@ class MBC_UserAPI_Registration_Consumer extends MB_Toolbox_BaseConsumer
    * @var string $curlUrl
    */
   private $curlUrl;
+  
+  /**
+   *
+   * @var string $submission
+   */
+  private $submission;
 
   /**
    * __construct():
    */
   public function __construct() {
 
+    parent::__construct();
     $this->mbConfig = MB_Configuration::getInstance();
     $this->mbToolboxcURL = $this->mbConfig->getProperty('mbToolboxcURL');
     $mbUserAPI = $this->mbConfig->getProperty('mb_user_api_config');
@@ -126,7 +133,7 @@ class MBC_UserAPI_Registration_Consumer extends MB_Toolbox_BaseConsumer
       'address2',
       'city',
       'state',
-      'user_county',
+      'user_country',
       'zip',
       'hs_gradyear',
       'race',
@@ -177,7 +184,7 @@ class MBC_UserAPI_Registration_Consumer extends MB_Toolbox_BaseConsumer
    */
   protected function process() {
 
-    echo '-> post: ' . print_r($post, TRUE) . ' - ' . date('j D M Y G:i:s Y') . ' -------', PHP_EOL;
+    echo '-> post: ' . print_r($this->submission, TRUE) . ' - ' . date('j D M Y G:i:s Y') . ' -------', PHP_EOL;
 
     $results = $this->mbToolboxcURL->curlPOST($this->curlUrl, $this->submission);
     if ($results[1] == 200) {
