@@ -76,6 +76,7 @@ class MBC_UserAPI_Registration_Consumer extends MB_Toolbox_BaseConsumer
       }
       catch(Exception $e) {
         echo 'Error submissing user registration for email address: ' . $this->message['email'] . ' to mb-user-api. Error: ' . $e->getMessage();
+        $this->messageBroker->sendAck($this->message['payload']);
       }
 
     }
@@ -193,7 +194,6 @@ class MBC_UserAPI_Registration_Consumer extends MB_Toolbox_BaseConsumer
     }
     else {
       echo '- mb-user-api ERROR: ' . print_r($results[0], TRUE), PHP_EOL;
-      $this->channel->basic_nack($this->message['payload']->delivery_info['delivery_tag']);
       throw new Exception('Error submitting registration to mb-user-api: ' . print_r($this->submission, TRUE));
     }
   }
