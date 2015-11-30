@@ -3,7 +3,7 @@
  * Functionality related to making user registration submissions to mb-user-api.
  */
 
- namespace DoSomething\MBC_UserAPI_Registration;
+namespace DoSomething\MBC_UserAPI_Registration;
 
 use DoSomething\MB_Toolbox\MB_Configuration;
 use DoSomething\MBStatTracker\StatHat;
@@ -30,7 +30,7 @@ class MBC_UserAPI_Registration_Consumer extends MB_Toolbox_BaseConsumer
    * @var string $curlUrl
    */
   private $curlUrl;
-  
+
   /**
    * The composed submission for POSTing to mb-user-api.
    * @var string $submission
@@ -58,7 +58,7 @@ class MBC_UserAPI_Registration_Consumer extends MB_Toolbox_BaseConsumer
    * Callback for messages arriving in the userAPIRegistrationQueue.
    *
    * @param string $payload
-   *   A seralized message to be processed.
+   *   A serialized message to be processed.
    */
   public function consumeUserAPIRegistrationQueue($payload) {
 
@@ -75,7 +75,7 @@ class MBC_UserAPI_Registration_Consumer extends MB_Toolbox_BaseConsumer
         $this->process();
       }
       catch(Exception $e) {
-        echo 'Error submissing user registration for email address: ' . $this->message['email'] . ' to mb-user-api. Error: ' . $e->getMessage();
+        echo 'Error submitting user registration for email address: ' . $this->message['email'] . ' to mb-user-api. Error: ' . $e->getMessage();
         $this->messageBroker->sendAck($this->message['payload']);
       }
 
@@ -99,10 +99,12 @@ class MBC_UserAPI_Registration_Consumer extends MB_Toolbox_BaseConsumer
       echo '- canProcess(), email not set.', PHP_EOL;
       return FALSE;
     }
-    // Don't process 1234@mobile email address (legacy hack in Drupal app to support mobile registrations)
+    // Don't process 1234@mobile email address (legacy hack in Drupal app
+    // to support mobile registrations)
     // BUT allow processing email addresses: joe@mobilemaster.com
     $mobilePos = strpos($this->message['email'], '@mobile');
-    if ($mobilePos > 0 && (strlen($this->message['email']) - $mobilePos) > 7) {
+    $isEmail = strlen($this->message['email']) - $mobilePos - 7;
+    if ($mobilePos > 0 && $isEmail == FALSE) {
       echo '- canProcess(), Drupal app fake @mobile email address.', PHP_EOL;
       return FALSE;
     }
@@ -182,7 +184,7 @@ class MBC_UserAPI_Registration_Consumer extends MB_Toolbox_BaseConsumer
   }
 
   /**
-   * process(): Submit formatted message values to mb-users-api /user/banned.
+   * process(): POST formatted message values to mb-users-api /user.
    */
   protected function process() {
 
