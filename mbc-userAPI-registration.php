@@ -7,6 +7,7 @@
  */
 
 date_default_timezone_set('America/New_York');
+
 define('CONFIG_PATH',  __DIR__ . '/messagebroker-config');
 // The number of messages for the consumer to reserve with each callback
 // See consumeMwessage for further details.
