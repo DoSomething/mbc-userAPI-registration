@@ -9,8 +9,9 @@ cd ../messagebroker-config
 # Gather path from root
 MBCONFIG=`pwd`
 
-# Back to mbp-user-import
+# Back to mbc-userAPI-registration
 cd ../mbc-userAPI-registration
 
-# Create SymLink for mbp-user-import application to make reference to for all Message Broker configuration settings
+# Create SymLink for mbc-userAPI-registration application to make reference to
+# for all Message Broker configuration settings
 ln -s $MBCONFIG .
