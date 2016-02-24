@@ -168,10 +168,10 @@ class MBC_UserAPI_Registration_Consumer extends MB_Toolbox_BaseConsumer
           $this->submission['drupal_register_timestamp'] = $message['activity_timestamp'];
         }
         elseif ($field == 'merge_vars') {
-          if (isset($payloadDetails['merge_vars']['FNAME'])) {
+          if (isset($message['merge_vars']['FNAME'])) {
             $this->submission['first_name'] = $message['merge_vars']['FNAME'];
           }
-          if (isset($payloadDetails['merge_vars']['LNAME'])) {
+          if (isset($message['merge_vars']['LNAME'])) {
             $this->submission['last_name'] = $message['merge_vars']['LNAME'];
           }
         }
