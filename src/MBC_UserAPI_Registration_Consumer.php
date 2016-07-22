@@ -65,14 +65,15 @@ class MBC_UserAPI_Registration_Consumer extends MB_Toolbox_BaseConsumer
     echo '-------  mbc-userAPI-register -  MBC_UserAPI_Registration_Consumer->consumeUserAPIRegistrationQueue() START -------', PHP_EOL;
 
     parent::consumeQueue($payload);
-    echo '** Consuming: ' . $this->message['email'], PHP_EOL;
 
-    if ($this->canProcess()) {
+    if ($this->canProcess($this->message)) {
 
       try {
-
+    
+        echo '** Consuming: ' . $this->message['email'], PHP_EOL;
         $this->setter($this->message);
-        $this->process();
+        $this->process($this->submission);
+        $this->messageBroker->sendAck($this->message['payload']);
       }
       catch(Exception $e) {
         echo 'Error submitting user registration for email address: ' . $this->message['email'] . ' to mb-user-api. Error: ' . $e->getMessage();
@@ -91,19 +92,21 @@ class MBC_UserAPI_Registration_Consumer extends MB_Toolbox_BaseConsumer
   /**
    * Conditions to test before processing the message.
    *
+   * @param array $message The message values to exvaluate.
+   *
    * @return boolean
    */
-  protected function canProcess() {
+  protected function canProcess($message) {
 
-    if (!(isset($this->message['email']))) {
+    if (!(isset($message['email']))) {
       echo '- canProcess(), email not set.', PHP_EOL;
       return FALSE;
     }
     // Don't process 1234@mobile email address (legacy hack in Drupal app
     // to support mobile registrations)
     // BUT allow processing email addresses: joe@mobilemaster.com
-    $mobilePos = strpos($this->message['email'], '@mobile');
-    $isEmail = strlen($this->message['email']) - $mobilePos - 7;
+    $mobilePos = strpos($message['email'], '@mobile');
+    $isEmail = strlen($message['email']) - $mobilePos - 7;
     if ($mobilePos > 0 && $isEmail == FALSE) {
       echo '- canProcess(), Drupal app fake @mobile email address.', PHP_EOL;
       return FALSE;
@@ -185,16 +188,15 @@ class MBC_UserAPI_Registration_Consumer extends MB_Toolbox_BaseConsumer
 
   /**
    * process(): POST formatted message values to mb-users-api /user.
+   *
+   * @param array $params Settings to be used in processing.
    */
-  protected function process() {
+  protected function process($params) {
 
-    echo '-> post: ' . print_r($this->submission, TRUE) . ' - ' . date('j D M Y G:i:s Y') . ' -------', PHP_EOL;
+    echo '-> post: ' . print_r($params, true) . ' - ' . date('j D M Y G:i:s Y') . ' -------', PHP_EOL;
 
-    $results = $this->mbToolboxcURL->curlPOST($this->curlUrl, $this->submission);
-    if ($results[1] == 200) {
-      $this->messageBroker->sendAck($this->message['payload']);
-    }
-    else {
+    $results = $this->mbToolboxcURL->curlPOST($this->curlUrl, $params);
+    if ($results[1] != 200) {
       echo '- mb-user-api ERROR: ' . print_r($results[0], TRUE), PHP_EOL;
       throw new Exception('Error submitting registration to mb-user-api: ' . print_r($this->submission, TRUE));
     }
