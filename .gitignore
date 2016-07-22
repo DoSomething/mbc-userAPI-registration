@@ -17,3 +17,6 @@ config.inc
 
 $ Ignore PHPSTORM config
 .idea
+
+# Ignore NPM files
+node_modules
