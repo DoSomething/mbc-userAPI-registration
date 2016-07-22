@@ -24,6 +24,7 @@ require_once CONFIG_PATH . '/mb-secure-config/' . ENVIRONMENT . '/mb-secure-conf
 
 $mbConfig = MB_Configuration::getInstance();
 
+$mbConfig->setProperty('generalSettings',[]);
 $mbConfig->setProperty('statHat', new StatHat([
   'ez_key' => getenv("STATHAT_EZKEY"),
   'debug' => getenv("DISABLE_STAT_TRACKING")
@@ -54,6 +55,8 @@ $mbRabbitConfig_Subscribes = $mbConfig->constructRabbitConfig('transactionalExch
 $mbConfig->setProperty('messageBrokerSubscribes_config', $mbRabbitConfig_Subscribes);
 $messageBrokerSubscribesConfig = $mbConfig->getProperty('messageBrokerSubscribes_config');
 $mbConfig->setProperty('messageBroker_Subscribes', new MessageBroker($rabbitCredentials, $messageBrokerSubscribesConfig));
+$messageBrokerConfig = $mbConfig->constructRabbitConfig('directDeadLetterExchange', ['deadLetterQueue']);
+$mbConfig->setProperty('messageBroker_deadLetter', new MessageBroker($rabbitCredentials, $messageBrokerConfig));
 
 $mbConfig->setProperty('mbRabbitMQManagementAPI', new MB_RabbitMQManagementAPI([
   'domain' => getenv("MB_RABBITMQ_MANAGEMENT_API_HOST"),
